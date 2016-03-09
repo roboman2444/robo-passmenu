@@ -32,10 +32,13 @@ fi
 [[ -n $password ]] || exit
 
 if [[ $typeit -eq 0 ]]; then
-	pass show -c "$password" 2>/dev/null
+##	pass show -c "$password" 2>/dev/null
 ##	pass show -c "$password" 2>/dev/null | timeout 5 dmenu "$@"
+	## pass does some weird fork stuff for -c, so i need head here or it gets stuck waiting for an EOF
+	outpass=$(pass show -c "$password" 2>/dev/null | head -n 1)
 ##	echo "$outpass"
-##	echo "$outpass" | timeout 5 dmenu "$@"
+	##can replace this with xmessage or whatever pop up thing you want
+	echo "$outpass" | timeout 5 dmenu "$@"
 else
 	xdotool - <<<"type --clearmodifiers -- $(pass show "$password" | head -n 1)"
 fi
