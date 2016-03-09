@@ -17,10 +17,7 @@ clippy=$(xclip -o | cut -d '/' -f 3);
 if [ -z "$clippy" ]; then
 	clippy=$(xclip -o | cut -d '/' -f 1);
 fi
-if [ -z "$clippy" ]; then
-	clippy=$(xclip -o | cut -d '/' -f 0);
-fi
-
+echo "$clippy"
 input=$(printf '%s\n' "${password_files[@]}" | grep "$clippy")
 if [ -z "$input" ]; then
 	password=$(printf '%s\n' "${password_files[@]}" | dmenu "$@")
@@ -35,8 +32,10 @@ fi
 [[ -n $password ]] || exit
 
 if [[ $typeit -eq 0 ]]; then
-##	pass show -c "$password" 2>/dev/null | xmessage -center -timeout 3 -buttons "" -file - &
-	pass show -c "$password" 2>/dev/null | dmenu "$@"
+	pass show -c "$password" 2>/dev/null
+##	pass show -c "$password" 2>/dev/null | timeout 5 dmenu "$@"
+##	echo "$outpass"
+##	echo "$outpass" | timeout 5 dmenu "$@"
 else
 	xdotool - <<<"type --clearmodifiers -- $(pass show "$password" | head -n 1)"
 fi
