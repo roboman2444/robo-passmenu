@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+shopt -s nullglob globstar
+
+typeit=0
+if [[ $1 == "--type" ]]; then
+	typeit=1
+	shift
+fi
+
+prefix=${PASSWORD_STORE_DIR-~/.password-store}
+password_files=( "$prefix"/**/*.gpg )
+password_files=( "${password_files[@]#"$prefix"/}" )
+password_files=( "${password_files[@]%.gpg}" )
+
+clippy=$(xclip -o | cut -d '/' -f 3);
+if [ -z "$clippy" ]; then
+	clippy=$(xclip -o | cut -d '/' -f 1);
+fi
+if [ -z "$clippy" ]; then
+	clippy=$(xclip -o | cut -d '/' -f 0);
+fi
+
+input=$(printf '%s\n' "${password_files[@]}" | grep "$clippy")
+if [ -z "$input" ]; then
+	password=$(printf '%s\n' "${password_files[@]}" | dmenu "$@")
+else
+	if (( $(grep -c . <<<"$input") == 1 )); then
+		password="$input"
+	else
+		password=$(printf '%s\n' "${input[@]}" | dmenu "$@")
+	fi
+fi
+
+[[ -n $password ]] || exit
+
+if [[ $typeit -eq 0 ]]; then
+	pass show -c "$password" 2>/dev/null
+else
+	xdotool - <<<"type --clearmodifiers -- $(pass show "$password" | head -n 1)"
+fi
