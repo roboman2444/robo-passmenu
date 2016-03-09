@@ -13,19 +13,18 @@ password_files=( "$prefix"/**/*.gpg )
 password_files=( "${password_files[@]#"$prefix"/}" )
 password_files=( "${password_files[@]%.gpg}" )
 
-clippy=$(xclip -o | cut -d '/' -f 3);
-if [ -z "$clippy" ]; then
-	clippy=$(xclip -o | cut -d '/' -f 1);
-fi
+
+clippy=$(xclip -o| sed 's/.*:\/\///' | sed 's/www\.//' | sed 's/\/.*//')
 echo "$clippy"
+
 input=$(printf '%s\n' "${password_files[@]}" | grep "$clippy")
 if [ -z "$input" ]; then
-	password=$(printf '%s\n' "${password_files[@]}" | dmenu "$@")
+	password=$(printf '%s\n' "${password_files[@]}" | dmenu "$@" -p "unmatched: $clippy")
 else
 	if (( $(grep -c . <<<"$input") == 1 )); then
 		password="$input"
 	else
-		password=$(printf '%s\n' "${input[@]}" | dmenu "$@")
+		password=$(printf '%s\n' "${input[@]}" | dmenu "$@" -p "$clippy")
 	fi
 fi
 
