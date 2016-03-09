@@ -37,7 +37,9 @@ if [[ $typeit -eq 0 ]]; then
 	outpass=$(pass show -c "$password" 2>/dev/null | head -n 1)
 ##	echo "$outpass"
 	##can replace this with xmessage or whatever pop up thing you want
-	echo "$outpass" | timeout 5 dmenu "$@"
+	if [ $? -eq 0 ]; then
+		echo "$outpass" | timeout 5 dmenu "$@"
+	fi
 else
 	xdotool - <<<"type --clearmodifiers -- $(pass show "$password" | head -n 1)"
 fi
