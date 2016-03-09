@@ -35,7 +35,8 @@ fi
 [[ -n $password ]] || exit
 
 if [[ $typeit -eq 0 ]]; then
-	pass show -c "$password" 2>/dev/null
+##	pass show -c "$password" 2>/dev/null | xmessage -center -timeout 3 -buttons "" -file - &
+	pass show -c "$password" 2>/dev/null | dmenu "$@"
 else
 	xdotool - <<<"type --clearmodifiers -- $(pass show "$password" | head -n 1)"
 fi
